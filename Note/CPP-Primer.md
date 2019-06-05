@@ -154,3 +154,99 @@ for (auto v: container){
 使用数组对vector进行初始化: `vector<int> vs(a+1, a+4)` 表示用a数组的第2~4元素对vs进行初始化，`vector<int> vs(begin(a), end(a))` 表示用a所有元素初始化vs。
 
 **现代的C++程序应该尽量使用vector和迭代器，避免使用内置数组和指针。尽量使用string，避免c语言风格字符串。**
+
+在c++中遍历多维数组的方式：
+```c++
+// 需要对多维数组中的变量进行修改
+for(auto& row : a)
+    for(auto& col: row){
+        col = 10;
+    }
+// 不需要操作多维数组中的变量
+for(const auto& row: a)
+    for(const auto& col: row){
+        cout << col << " ";
+    }
+// 使用指针进行操作
+for(auto p=begin(a); p!=end(a); ++p){
+    for(auto q=begin(*p); q!=end(*p); ++q){
+        cout << *q << " ";
+    }
+    cout << endl;
+}
+```
+**要使用范围for语句处理多维数组，除了最外层的循环外，其他所有循环的控制变量都应该是引用类型。**
+
+## 第四章 表达式
+
+c++的表达式，要不然是右值(rvalue)，要不然是左值(lvalue)。当对象被用作左值的时候，用的是对象的身份(在内存中的位置)，当对象被用作右值的时候，用的是对象的值(内容)。
+
+对 string 对象或vector对象执行sizeof运算，值返回该类型固定部分的大小，不会计算对象中的元素占用了多少空间。
+
+逗号运算符：含有两个运算对象，按照从左向右的顺序依次求值。
+
+4中显示类型转换：
+- `const_cast`: 改变运算对象的底层const；
+- `static_cast`: 用于明确定义的类型转换，例如将`double`转换为`int`，将`void*`转换为`int*`；
+- `dynamic_cast`: 用于将父类对象转换为子类对象；
+- `reinterpret_cast`: 用于不同类型指针的转换，慎用！
+尽量避免强制类型转换。
+
+## 第五章 语句
+
+使用空语句时应该加上注释，从而令读这段代码的人知道该语句是有意省略的。
+
+复合语句(compound statement)是指用花括号括起来的语句和声明的序列，复合语句也被称为块(block)。一个块就是一个作用域，在块中引入的名字只能在块内部以及嵌套在块中的子块里访问。
+
+不要再程序中使用goto语句，因为它使得程序既难以理解，又难以修改。
+
+try 语句块的通用语法形式为：
+```c++
+try{
+    program-statements
+}catch(exception-declaration){
+    handler-statements
+}catch(exception-declaration){
+    handler-statements
+}
+```
+
+## 第六章 函数
+
+函数声明也称为函数原型(function prototype)。
+
+**熟悉C的程序员常常使用指针类型的形参访问函数外部的对象，在C++语言中，建议使用引用类型的形参替代指针。**
+
+含有可变形参的函数，其中的可变参数用省略符表示，可以用它来传递可变数量的实参，不过这种功能一般只用于与C函数交互的接口程序。
+
+**initializer_list** 形参：如果函数的实参数量未知，但是全部实参的类型都相同，可以传递一个名为initializer_list的标准库类型，使用方法类似：
+```c++
+void showmsg(initializer_list<string> msgs){
+    for(auto msg : msgs){
+        // do something with msg
+    }
+}
+showmsg({"aaa","bbb","ccc"});
+```
+**省略符形参**：为了便于C++程序访问某些特殊的C代码而设置，这些代码使用了名为 varargs 的C标准库功能。通常，省略符形参不应用于其他目的。
+
+c++11新标准中规定，函数可以返回花括号包围的值的列表，类似于其他返回结果，此处的列表也用来对表示函数返回的临时量进行初始化。
+```c++
+#include <iostream>
+#include <climits>
+#include <string>
+#include <vector>
+using namespace std;
+
+vector<int> get_maxmin(vector<int> a){
+    int maxv=INT_MIN, minv=INT_MAX;
+    for(auto v : a){
+        if(v > maxv)
+            maxv = v;
+        if(v < minv)
+            minv = v;
+    }
+    return {maxv, minv};
+}
+```
+
